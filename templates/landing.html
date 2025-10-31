@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samrakshak: AI Surveillance Automation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F7FAFC; /* Light gray background */
+        }
+        .neo-shadow {
+            box-shadow: 8px 8px 0px #000000;
+        }
+        .neo-shadow-sm {
+            box-shadow: 4px 4px 0px #000000;
+        }
+        .neo-border {
+            border: 3px solid black;
+        }
+        .neo-button {
+            border: 3px solid black;
+            font-weight: 800; /* Extra-bold */
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.1s ease-in-out;
+        }
+        .neo-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 6px 6px 0px #000000;
+        }
+        .neo-button:active {
+            transform: translate(8px, 8px);
+            box-shadow: 0px 0px 0px #000000;
+        }
+        .logo-text {
+            font-weight: 900; /* Black */
+            font-size: 2.5rem; /* 4xl */
+            border: 3px solid black;
+            padding: 4px 12px;
+            background-color: #FDE047; /* yellow-300 */
+            box-shadow: 6px 6px 0px #000;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="bg-yellow-300 text-black flex items-center justify-center min-h-screen p-6">
+
+    <div class="w-full max-w-6xl p-8 md:p-12 bg-white rounded-xl neo-border neo-shadow">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-16">
+            <div class="logo-text mb-6 md:mb-0">
+                Samrakshak
+            </div>
+            <nav class="flex space-x-4">
+                <a href="#" class="neo-button bg-white text-black px-5 py-2 rounded-lg neo-shadow-sm hover:bg-gray-100">About</a>
+                <a href="#" class="neo-button bg-black text-white px-5 py-2 rounded-lg neo-shadow-sm hover:bg-gray-800">Login</a>
+            </nav>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="text-center mb-20">
+            <h1 class="text-5xl md:text-7xl font-black text-black mb-6">
+                AI Automation for the <span class="text-red-500">Real World.</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-800 font-medium max-w-3xl mx-auto mb-10">
+                Your one-stop solution for AI surveillance. Samrakshak learns your 'normal' to detect *true* anomalies, eliminating false alarms and human error.
+            </p>
+            <a href="{{ url_for('dashboard') }}" 
+               class="neo-button inline-block bg-green-400 text-black px-12 py-4 text-2xl rounded-lg neo-shadow hover:bg-green-500">
+                Launch Live Demo
+            </a>
+            <p class="text-sm text-gray-700 mt-4 font-mono">Real-time detection. No setup required.</p>
+        </section>
+
+        <!-- Features Section -->
+        <section class="grid md:grid-cols-3 gap-8 mb-12">
+            <!-- Feature 1 -->
+            <div class="bg-red-400 p-6 rounded-lg neo-border neo-shadow-sm flex flex-col">
+                <h2 class="text-3xl font-bold text-black mb-4">Unmatched Vigilance</h2>
+                <p class="text-black leading-relaxed flex-1 mb-4">
+                    Our AI learns to ignore birds, shadows, and rain. It only alerts you for the events that *actually* matter.
+                </p>
+                <div class="text-black text-xs font-mono bg-white p-2 border-2 border-black neo-shadow-sm">
+                    [AI_STATUS: ACTIVE] [FOCUS: TRUE_ANOMALY]
+                </div>
+            </div>
+            <!-- Feature 2 -->
+            <div class="bg-green-400 p-6 rounded-lg neo-border neo-shadow-sm flex flex-col">
+                <h2 class="text-3xl font-bold text-black mb-4">Seamless Automation</h2>
+                <p class="text-black leading-relaxed flex-1 mb-4">
+                    Integrates with your existing camera infrastructure in minutes. No new hardware, just smarter software.
+                </p>
+                <div class="text-black text-xs font-mono bg-white p-2 border-2 border-black neo-shadow-sm">
+                    [INTEGRATION: 99% COMPATIBLE] [COST: -65%]
+                </div>
+            </div>
+            <!-- Feature 3 -->
+            <div class="bg-yellow-300 p-6 rounded-lg neo-border neo-shadow-sm flex flex-col">
+                <h2 class="text-3xl font-bold text-black mb-4">Instant ROI</h2>
+                <p class="text-black leading-relaxed flex-1 mb-4">
+                    Reduce security overhead, prevent loss, and get actionable insights. Stop watching feeds and start making decisions.
+                </p>
+                <div class="text-black text-xs font-mono bg-white p-2 border-2 border-black neo-shadow-sm">
+                    [EFFICIENCY_BOOST: +90%] [ROI: IMMEDIATE]
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-700 text-sm font-mono">
+            &copy; 2025 Samrakshak AI. Built for HackSpire.
+        </footer>
+    </div>
+</body>
+</html>
+
