@@ -1,6 +1,7 @@
 import cv2
 import time
-from flask import Flask, Response, render_template
+import os
+from flask import Flask, Response, render_template, request
 from detector_core import AnomalyDetector
 from data_handler import preprocess_frame # We need this for calibration
 import numpy as np # <-- 1. IMPORT NUMPY
@@ -8,8 +9,15 @@ import numpy as np # <-- 1. IMPORT NUMPY
 # --- 1. Initialize Flask App ---
 app = Flask(__name__)
 
-# Configure the application to work with URL prefix
-app.config['APPLICATION_ROOT'] = '/sam-rakshak'
+# Configure for different environments
+app.config['BASE_PREFIX'] = '/sam-rakshak' if os.environ.get('FLASK_ENV') == 'production' else ''
+
+def get_prefix():
+    return app.config['BASE_PREFIX']
+
+# Create a Blueprint for our routes
+from flask import Blueprint
+main = Blueprint('main', __name__)
 
 # --- 2. Initialize Detector Engine (UN-CALIBRATED) ---
 print("[Server] Loading anomaly detector engine...")
@@ -137,20 +145,25 @@ def gen_frames():
 
 # --- 4. Define Routes ---
 
-@app.route('/')
+@main.route('/')
 def index():
     """Serves the main landing page."""
-    return render_template('landing.html')
+    prefix = get_prefix()
+    return render_template('landing.html', prefix=prefix)
 
-@app.route('/dashboard')
+@main.route('/dashboard')
 def dashboard():
     """Serves the dashboard page where the feed is shown."""
-    return render_template('dashboard.html')
+    prefix = get_prefix()
+    return render_template('dashboard.html', prefix=prefix)
 
-@app.route('/video_feed')
+@main.route('/video_feed')
 def video_feed():
     """The route that streams the video feed."""
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# Register blueprint with the correct URL prefix
+app.register_blueprint(main, url_prefix=get_prefix())
 
 # --- 5. Run the App ---
 if __name__ == "__main__":
