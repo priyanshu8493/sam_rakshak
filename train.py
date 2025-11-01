@@ -5,10 +5,10 @@ from data_handler import preprocess_frame, IMG_HEIGHT, IMG_WIDTH
 from model import build_autoencoder
 
 # --- Constants ---
-TRAINING_TIME_SEC = 60 # How long to record "normal" video.
-FRAMES_TO_SKIP = 5    # Only save 1 out of every 5 frames to get diverse data.
-MODEL_EPOCHS = 200   # How many times to loop over the data. 30-40 is good.
-MODEL_BATCH_SIZE = 16  # How many frames to process at once.
+TRAINING_TIME_SEC = 160 # How long to record "normal" video.
+FRAMES_TO_SKIP = 10    # Only save 1 out of every 5 frames to get diverse data.
+MODEL_EPOCHS = 300   # How many times to loop over the data. 30-40 is good.
+MODEL_BATCH_SIZE = 32  # How many frames to process at once.
 # --- End Constants ---
 
 def collect_training_data(video_source=0):

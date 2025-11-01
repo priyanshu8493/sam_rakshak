@@ -1,43 +1,48 @@
 import cv2
 import numpy as np
+import torch
+from torchvision import transforms
+from PIL import Image # PyTorch transforms work best with PIL images
 
 # --- Constants ---
-# Using a smaller, square image is much faster for the model
-IMG_WIDTH = 128
-IMG_HEIGHT = 128
-# --- End Constants ---
+# DINOv2 was trained on 224x224 images. We must use this size.
+IMG_SIZE = 224
 
-def preprocess_frame(frame):
+# --- DINOv2 specific normalization ---
+# These are the mean/std values from the ImageNet dataset
+DINO_TRANSFORM = transforms.Compose([
+    transforms.Resize((IMG_SIZE, IMG_SIZE)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+])
+
+def preprocess_frame_dino(frame):
     """
-    Converts a single video frame into a model-ready format.
+    Converts a single OpenCV video frame (BGR) into a DINOv2-ready tensor.
     
-    1. Converts to Grayscale
-    2. Resizes to (IMG_HEIGHT, IMG_WIDTH)
-    3. Normalizes pixel values to be between 0.0 and 1.0
-    4. Reshapes for Keras: (1, height, width, 1)
+    1. Converts BGR (OpenCV) to RGB (PIL)
+    2. Applies the DINOv2 transforms (resize, ToTensor, normalize)
+    3. Adds a batch dimension (1, C, H, W)
     
     Args:
         frame (numpy.ndarray): The raw video frame from OpenCV.
         
     Returns:
-        numpy.ndarray: The processed frame, ready for the model.
+        torch.Tensor: The processed tensor, ready for the model.
     """
     try:
-        # 1. Convert to Grayscale
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # 1. Convert BGR (OpenCV) to RGB
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
-        # 2. Resize to our standard size
-        resized = cv2.resize(gray, (IMG_WIDTH, IMG_HEIGHT))
+        # 2. Convert numpy array to PIL Image
+        pil_image = Image.fromarray(rgb_frame)
         
-        # 3. Normalize pixel values
-        normalized = resized.astype("float32") / 255.0
+        # 3. Apply DINOv2 transforms
+        tensor = DINO_TRANSFORM(pil_image)
         
-        # 4. Reshape for Keras (batch_size, height, width, channels)
-        return np.reshape(normalized, (1, IMG_HEIGHT, IMG_WIDTH, 1))
+        # 4. Add batch dimension (C, H, W) -> (1, C, H, W)
+        return tensor.unsqueeze(0)
     
-    except cv2.error as e:
-        print(f"[DataHandler] OpenCV Error: {e}")
-        return None
     except Exception as e:
         print(f"[DataHandler] Error processing frame: {e}")
         return None
@@ -45,11 +50,8 @@ def preprocess_frame(frame):
 if __name__ == "__main__":
     """
     A simple test script to show the preprocessor in action.
-    This opens your webcam and displays the original vs. processed feed.
     """
-    
-    cap = cv2.VideoCapture(0) # 0 is your default webcam
-    
+    cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Error: Could not open webcam.")
         exit()
@@ -59,17 +61,16 @@ if __name__ == "__main__":
     while True:
         ret, frame = cap.read()
         if not ret:
-            print("Error: Can't receive frame. Exiting ...")
             break
             
-        processed_input = preprocess_frame(frame)
+        tensor = preprocess_frame_dino(frame)
         
-        if processed_input is not None:
-            # To display the preprocessed image, we 'un-normalize' and 'un-reshape' it
-            display_frame = (processed_input.squeeze() * 255).astype("uint8")
-            cv2.imshow("Processed (Grayscale, 128x128)", display_frame)
-        
-        cv2.imshow("Original Feed", frame)
+        if tensor is not None:
+            # To display, we need to un-normalize (this is complex)
+            # For a simple check, just show the original
+            cv2.imshow("Original Feed", frame)
+            # And print the tensor shape
+            # print(f"Output tensor shape: {tensor.shape}") # Uncomment for debugging
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
