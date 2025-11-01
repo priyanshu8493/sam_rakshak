@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 # Configure for different environments
 is_production = os.environ.get('FLASK_ENV') == 'production'
-app.config['BASE_PREFIX'] = '/sam-rakshak' if is_production else ''
+app.config['BASE_PREFIX'] = '/sam_rakshak' if is_production else ''  # Changed to underscore to match server config
 
 def get_prefix():
     return app.config['BASE_PREFIX']
@@ -26,6 +26,8 @@ if is_production:
         if endpoint.startswith('static'):
             return url_for(endpoint, **values)
         url = url_for(endpoint, **values)
+        if not url.startswith('/'):
+            url = '/' + url
         return f"{get_prefix()}{url}"
     app.jinja_env.globals['url_for'] = url_for_with_prefix
 
@@ -45,9 +47,28 @@ def gen_frames():
     Phase 2: Detect anomalies.
     """
     
-    cap = cv2.VideoCapture(0)
-    if not cap.isOpened():
-        print("[Video Thread] Error: Could not open camera.")
+    try:
+        cap = cv2.VideoCapture(0)
+        if not cap.isOpened():
+            print("[Video Thread] Error: Could not open camera.")
+            # Return a black frame with error message when camera fails
+            error_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+            cv2.putText(error_frame, "Camera Error: Could not access webcam", 
+                       (50, 240), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            ret, buffer = cv2.imencode('.jpg', error_frame)
+            error_frame_bytes = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + error_frame_bytes + b'\r\n')
+            return
+    except Exception as e:
+        print(f"[Video Thread] Error initializing camera: {str(e)}")
+        error_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+        cv2.putText(error_frame, f"Camera Error: {str(e)}", 
+                   (50, 240), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        ret, buffer = cv2.imencode('.jpg', error_frame)
+        error_frame_bytes = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + error_frame_bytes + b'\r\n')
         return
 
     # --- PHASE 1: CALIBRATION (User-facing) ---

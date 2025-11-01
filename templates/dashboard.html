@@ -135,7 +135,7 @@
                         <div class="p-4 bg-gray-800 text-yellow-300 font-mono neo-border-b">
                             [REC] CAM_01_ENTRANCE / STATUS: LIVE
                         </div>
-                        <img src="{{ url_for('main.video_feed') }}" width="100%" alt="Live Video Feed" class="w-full" />
+                        <img src="{{ url_for('main.video_feed', _external=False) }}" width="100%" alt="Live Video Feed" class="w-full" />
                         <div class="p-4 bg-gray-800 text-gray-300 font-mono neo-border-t">
                             <!-- This info is now dynamic from the feed -->
                             STATUS: <span id="status-text">CONNECTING...</span>
