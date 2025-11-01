@@ -11,25 +11,34 @@ app = Flask(__name__)
 
 # Configure for different environments
 is_production = os.environ.get('FLASK_ENV') == 'production'
-app.config['BASE_PREFIX'] = '/sam_rakshak' if is_production else ''  # Changed to underscore to match server config
-
-def get_prefix():
-    return app.config['BASE_PREFIX']
 
 # Create a Blueprint for our routes
-from flask import Blueprint
+from flask import Blueprint, url_for as flask_url_for
 main = Blueprint('main', __name__)
 
-# Override url_for when in production
-if is_production:
-    def url_for_with_prefix(endpoint, **values):
-        if endpoint.startswith('static'):
-            return url_for(endpoint, **values)
-        url = url_for(endpoint, **values)
+def get_prefix():
+    if is_production:
+        return '/sam_rakshak'
+    return ''
+
+# Custom URL generation function
+def custom_url_for(endpoint, **values):
+    if endpoint.startswith('static'):
+        return flask_url_for(endpoint, **values)
+    
+    if not endpoint.startswith('main.'):
+        endpoint = f'main.{endpoint}'
+    
+    url = flask_url_for(endpoint, **values)
+    
+    if is_production:
         if not url.startswith('/'):
             url = '/' + url
         return f"{get_prefix()}{url}"
-    app.jinja_env.globals['url_for'] = url_for_with_prefix
+    return url
+
+# Override url_for globally
+app.jinja_env.globals['url_for'] = custom_url_for
 
 # --- 2. Initialize Detector Engine (UN-CALIBRATED) ---
 print("[Server] Loading anomaly detector engine...")
@@ -179,14 +188,12 @@ def gen_frames():
 @main.route('/')
 def index():
     """Serves the main landing page."""
-    prefix = get_prefix()
-    return render_template('landing.html', prefix=prefix)
+    return render_template('landing.html')
 
 @main.route('/dashboard')
 def dashboard():
     """Serves the dashboard page where the feed is shown."""
-    prefix = get_prefix()
-    return render_template('dashboard.html', prefix=prefix)
+    return render_template('dashboard.html')
 
 @main.route('/video_feed')
 def video_feed():
