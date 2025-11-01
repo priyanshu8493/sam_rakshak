@@ -1,7 +1,7 @@
 import cv2
 import time
 import os
-from flask import Flask, Response, render_template, request
+from flask import Flask, Response, render_template, request, url_for
 from detector_core import AnomalyDetector
 from data_handler import preprocess_frame # We need this for calibration
 import numpy as np # <-- 1. IMPORT NUMPY
@@ -10,7 +10,8 @@ import numpy as np # <-- 1. IMPORT NUMPY
 app = Flask(__name__)
 
 # Configure for different environments
-app.config['BASE_PREFIX'] = '/sam-rakshak' if os.environ.get('FLASK_ENV') == 'production' else ''
+is_production = os.environ.get('FLASK_ENV') == 'production'
+app.config['BASE_PREFIX'] = '/sam-rakshak' if is_production else ''
 
 def get_prefix():
     return app.config['BASE_PREFIX']
@@ -18,6 +19,15 @@ def get_prefix():
 # Create a Blueprint for our routes
 from flask import Blueprint
 main = Blueprint('main', __name__)
+
+# Override url_for when in production
+if is_production:
+    def url_for_with_prefix(endpoint, **values):
+        if endpoint.startswith('static'):
+            return url_for(endpoint, **values)
+        url = url_for(endpoint, **values)
+        return f"{get_prefix()}{url}"
+    app.jinja_env.globals['url_for'] = url_for_with_prefix
 
 # --- 2. Initialize Detector Engine (UN-CALIBRATED) ---
 print("[Server] Loading anomaly detector engine...")
