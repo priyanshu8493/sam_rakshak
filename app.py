@@ -8,6 +8,9 @@ import numpy as np # <-- 1. IMPORT NUMPY
 # --- 1. Initialize Flask App ---
 app = Flask(__name__)
 
+# Configure the application to work with URL prefix
+app.config['APPLICATION_ROOT'] = '/sam-rakshak'
+
 # --- 2. Initialize Detector Engine (UN-CALIBRATED) ---
 print("[Server] Loading anomaly detector engine...")
 detector = AnomalyDetector()
